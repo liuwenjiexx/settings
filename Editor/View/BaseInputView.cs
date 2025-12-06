@@ -13,12 +13,9 @@ namespace SettingsManagement.Editor
         static Dictionary<Type, Type> baseInputFieldTypes = new()
         {
             { typeof(string),typeof(TextField)},
-            { typeof(ushort),typeof(UnsignedIntegerField)},
             { typeof(short),typeof(IntegerField)},
             { typeof(int),typeof(IntegerField)},
-            { typeof(uint),typeof(UnsignedIntegerField)},
             { typeof(long),typeof(LongField)},
-            { typeof(ulong),typeof(UnsignedLongField)},
             { typeof(float),typeof(FloatField)},
             { typeof(double),typeof(DoubleField)},
             { typeof(bool),typeof(Toggle)},
@@ -31,6 +28,11 @@ namespace SettingsManagement.Editor
             { typeof(Rect),typeof(RectField)},
             { typeof(AnimationCurve),typeof(CurveField)},
             { typeof(Bounds),typeof(BoundsField)},
+#if UNITY_2022_1_OR_NEWER
+            { typeof(ushort),typeof(UnsignedIntegerField)},
+            { typeof(uint),typeof(UnsignedIntegerField)},
+            { typeof(ulong),typeof(UnsignedLongField)},
+#endif
         };
 
         public static bool IsBaseField(Type type)
@@ -117,7 +119,7 @@ namespace SettingsManagement.Editor
 
         public override void SetValue(object value)
         {
-            Enum @enum=(Enum)Convert.ChangeType(value, typeof(Enum));
+            Enum @enum = (Enum)Convert.ChangeType(value, typeof(Enum));
             input.SetValueWithoutNotify(@enum);
         }
     }

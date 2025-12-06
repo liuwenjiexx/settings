@@ -332,15 +332,15 @@ namespace SettingsManagement
         /// <summary>
         /// 设置选项 platform: Default, variant: null
         /// </summary>
-        public void SetValue(T value, bool saveImmediate = false)
+        public bool SetValue(T value, bool saveImmediate = false)
         {
-            SetValue(PlatformNames.Default, null, value, saveImmediate);
+            return SetValue(PlatformNames.Default, null, value, saveImmediate);
         }
 
-        void ISetting.SetValue(string platform, string variant, object value, bool saveImmediate)
+        bool ISetting.SetValue(string platform, string variant, object value, bool saveImmediate)
             => SetValue(platform, variant, (T)value, saveImmediate);
 
-        public void SetValue(string platform, string variant, T value, bool saveImmediate = false)
+        public bool SetValue(string platform, string variant, T value, bool saveImmediate = false)
         {
             Initialize();
 
@@ -360,6 +360,12 @@ namespace SettingsManagement
             //    }
             //}
 
+            var oldValue = GetValue(platform, variant);
+            bool changed = false;
+            if (!object.Equals(oldValue, value))
+            {
+                changed = true;
+            }
             // if (changed)
             {
                 settings.Set<T>(platform, variant, key, value, repositoryName, scope);
@@ -370,6 +376,52 @@ namespace SettingsManagement
                     settings.Save();
                 }
             }
+            return changed;
+        }
+
+        public bool SetValueWithCheck(T value, bool saveImmediate = false)
+        {
+            return SetValueWitchCheck(PlatformNames.Default, null, value, saveImmediate);
+        }
+
+  
+        public bool SetValueWitchCheck(string platform, string variant, T value, bool saveImmediate = false)
+        {
+            Initialize();
+
+
+            //bool changed = false;
+            //if (!settings.ContainsKey<T>(platform, key, repositoryName, scope))
+            //{
+            //    changed = true;
+            //}
+            //else
+            //{
+            //数组元素不好比较相等
+            //    object oldValue = GetValue(platform);
+            //    if (!object.Equals(oldValue, value))
+            //    {
+            //        changed = true;
+            //    }
+            //}
+
+            var oldValue = GetValue(platform, variant);
+            bool changed = false;
+            if (!object.Equals(oldValue, value))
+            {
+                changed = true;
+            }
+            if (changed)
+            {
+                settings.Set<T>(platform, variant, key, value, repositoryName, scope);
+                cachedValues[(platform, variant)] = value;
+
+                if (saveImmediate)
+                {
+                    settings.Save();
+                }
+            }
+            return changed;
         }
 
         public void Delete(bool saveImmediate = false)

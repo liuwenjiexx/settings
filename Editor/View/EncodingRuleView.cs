@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 using SettingsManagement.Editor;
+using UnityEditor.UIElements;
 
 namespace Unity.Text.Editor
 {

@@ -249,7 +249,7 @@ Windows: `%LOCALAPPDATA%/Unity/Editor/EditorSettings/Packages/<PackageName>`
 ```c#
 public class MySettingsProvider : SettingsProvider
 {
-    private const string SettingsPath = "Yanmonet/My Settings";
+    private const string SettingsPath = "My Settings";
 
     public MySettingsProvider()
         : base(SettingsPath, UnityEditor.SettingsScope.Project)
@@ -274,6 +274,19 @@ public class MySettingsProvider : SettingsProvider
 ```
 
 
+
+### 定制类型
+
+```c#
+    [Serializable]
+    public class CustomType
+    {
+        public int i;
+        public string s;
+    }
+```
+
+类型必须添加 `SerializableAttribute` 支持序列化
 
 ### 定制编辑器
 
@@ -332,7 +345,7 @@ class ExampleWindow : EditorWindow
 
 变体默认为空，显示名称为 release，常见变体 debug, demo, demo-debug
 
-工程设置 `Project Settings/Yanmonet/Settings` 配置变体
+工程设置 `Project Settings/Tool/Settings` 配置变体
 
 **切换变体**
 

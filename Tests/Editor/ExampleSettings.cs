@@ -8,6 +8,7 @@ using Unity;
 using SettingsManagement;
 using SettingsManagement.Editor;
 using static UnityEditor.Progress;
+using SettingsManagement.Examples;
 
 /// <summary>
 /// 设置
@@ -112,7 +113,26 @@ public class ExampleSettings
         set => hideField.SetValue(value, true);
     }
 
+    #region Custom Type
 
+    private static Setting<CustomType> customType = new(Settings, "custom-type", new CustomType() { i = 1, s = "abc" }, SettingsScope.EditorUser);
+    public static CustomType CustomType
+    {
+        get => customType.Value;
+        set => customType.SetValue(value, true);
+    }
+    private static Setting<List<CustomType>> customTypeList = new(Settings, "custom-type.list", new List<CustomType>()
+    {
+        new CustomType(){ i=1, s="abc"},
+        new CustomType(){ i=2, s="def"}
+    }, SettingsScope.EditorUser);
+    public static List<CustomType> CustomTypeList
+    {
+        get => customTypeList.Value;
+        set => customTypeList.SetValue(value, true);
+    }
+
+    #endregion
 
     [MultiPlatform]
     private static Setting<string> platformString = new(Settings, "platform.string", string.Empty, SettingsScope.EditorUser);

@@ -408,9 +408,10 @@ namespace SettingsManagement
             try
             {
                 ///反序列化有错误
+                //if (items == null)
+                //    return;
                 if (items == null)
-                    return;
-
+                    items = new();
                 items.Clear();
 
                 foreach (var item in dic)

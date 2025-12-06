@@ -40,13 +40,12 @@ namespace SettingsManagement.Editor
 
             DropdownField variantListField = new();
             variantListField.label = "Variant";
-            variantListField.formatListItemCallback = o =>
+            variantListField.SetFormatValueCallback(o =>
             {
                 if (string.IsNullOrEmpty(o))
                     return SettingSettings.DefaultVariantName;
                 return o;
-            };
-            variantListField.formatSelectedValueCallback = variantListField.formatListItemCallback;
+            });
             isSetVariant = true;
             variantListField.choices.Clear();
             variantListField.choices.Add(string.Empty);

@@ -1058,6 +1058,19 @@ namespace SettingsManagement.Editor
             return null;
         }
 
+        public static InputView CreateInputView(Type valueType)
+        {
+            Type viewType = GetInputViewType(valueType);
+            if (viewType == null)
+                return null;
+            InputView view = Activator.CreateInstance(viewType) as InputView;
+            if (view == null)
+                return null;
+            view.ValueType = valueType;
+            return view;
+        }
+
+
         public static void CreateSettingView(CreateSettingViewOptions options)
         {
 
@@ -1289,7 +1302,7 @@ namespace SettingsManagement.Editor
 #if UNITY_2022_3_OR_NEWER
                     {NamedBuildTarget.LinuxHeadlessSimulation, SettingsPlatform.CloudRendering},
 #else
-                    {NamedBuildTarget.CloudRendering, SettingsPlatform.CloudRendering},
+                    {NamedBuildTarget.LinuxHeadlessSimulation, SettingsPlatform.CloudRendering},
 #endif
                     {NamedBuildTarget.EmbeddedLinux, SettingsPlatform.EmbeddedLinux},
                 };
@@ -1352,10 +1365,10 @@ namespace SettingsManagement.Editor
                     {NamedBuildTarget.XboxOne, PlatformNames.XboxOne},
                     {NamedBuildTarget.NintendoSwitch, PlatformNames.Switch},
                     {NamedBuildTarget.Stadia, PlatformNames.Stadia},
-#if UNITY_2022_3_OR_NEWER
+#if UNITY_2021_3_OR_NEWER
                     {NamedBuildTarget.LinuxHeadlessSimulation, PlatformNames.LinuxHeadlessSimulation},
 #else
-                    {NamedBuildTarget.CloudRendering, SettingsPlatforms.LinuxHeadlessSimulation},
+                    {NamedBuildTarget.LinuxHeadlessSimulation, SettingsPlatforms.LinuxHeadlessSimulation},
 #endif
                     {NamedBuildTarget.EmbeddedLinux, PlatformNames.EmbeddedLinux},
                 };
@@ -1545,7 +1558,7 @@ namespace SettingsManagement.Editor
             }));
 
             //UpdateSettingFieldLabel(settingLabel, isBoldLabel(setting));
-            return () => UpdateSettingFieldLabel(settingLabel, isBoldLabel!=null? isBoldLabel(setting):false);
+            return () => UpdateSettingFieldLabel(settingLabel, isBoldLabel != null ? isBoldLabel(setting) : false);
         }
 
         public static void UpdateSettingFieldLabel(VisualElement settingLabel, bool isBoldLabel)
@@ -1896,6 +1909,56 @@ namespace SettingsManagement.Editor
             return container;
         }
 
+        static FieldInfo formatListItemCallbackField;
+        static FieldInfo formatSelectedValueCallbackField;
+
+        private static void InitFormatListItemCallback()
+        {
+#if !UNITY_2022_1_OR_NEWER
+            if (formatListItemCallbackField == null)
+            {
+                BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+                Type type = typeof(DropdownField);
+                formatListItemCallbackField = type.GetField("formatListItemCallback", bindingFlags);
+                formatListItemCallbackField = formatListItemCallbackField ?? type.GetField("m_FormatListItemCallback", bindingFlags);
+                formatSelectedValueCallbackField = type.GetField("formatSelectedValueCallback", bindingFlags);
+                formatSelectedValueCallbackField = formatSelectedValueCallbackField ?? type.GetField("m_FormatSelectedValueCallback", bindingFlags);
+
+            }
+#endif
+        }
+
+        public static void SetFormatListItemCallback(this DropdownField field, Func<string, string> callback)
+        {
+#if UNITY_2022_1_OR_NEWER
+            field.formatListItemCallback = callback;
+#else
+            InitFormatListItemCallback();
+            if (formatListItemCallbackField != null)
+            {
+                formatListItemCallbackField.SetValue(field, callback);
+            }
+#endif
+        }
+
+        public static void SetFormatSelectedValueCallback(this DropdownField field, Func<string, string> callback)
+        {
+#if UNITY_2022_1_OR_NEWER
+            field.formatSelectedValueCallback =callback;
+#else
+            InitFormatListItemCallback();
+            if (formatSelectedValueCallbackField != null)
+            {
+                formatSelectedValueCallbackField.SetValue(field, callback);
+            }
+#endif
+        }
+
+        public static void SetFormatValueCallback(this DropdownField field, Func<string, string> callback)
+        {
+            SetFormatListItemCallback(field, callback);
+            SetFormatSelectedValueCallback(field, callback);
+        }
 
     }
 
@@ -1922,6 +1985,7 @@ namespace SettingsManagement.Editor
         public Action<ISetting, int, int> OnMoveSetting;
 
     }
+
 
 }
 

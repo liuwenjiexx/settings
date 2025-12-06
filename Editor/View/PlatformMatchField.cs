@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using SettingsManagement;
 using SettingsManagement.Editor;
+using UnityEditor.UIElements;
 
 namespace SettingsManagement.Editor
 {

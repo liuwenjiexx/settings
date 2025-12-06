@@ -141,8 +141,8 @@ namespace SettingsManagement.Editor
                     DropdownField baseVariantField = new DropdownField();
                     baseVariantField.AddToClassList("variant-list-item_base");
                     newTemplate.Add(baseVariantField);
-                    baseVariantField.formatListItemCallback = FormatDisplayVariant;
-                    baseVariantField.formatSelectedValueCallback = baseVariantField.formatListItemCallback;
+                    baseVariantField.SetFormatListItemCallback(FormatDisplayVariant);
+                    baseVariantField.SetFormatSelectedValueCallback(FormatDisplayVariant);
                     baseVariantField.RegisterValueChangedCallback(e =>
                     {
                         var variantConfig = container.userData as VariantConfig;
