@@ -381,11 +381,11 @@ namespace SettingsManagement
 
         public bool SetValueWithCheck(T value, bool saveImmediate = false)
         {
-            return SetValueWitchCheck(PlatformNames.Default, null, value, saveImmediate);
+            return SetValueWithCheck(PlatformNames.Default, null, value, saveImmediate);
         }
 
   
-        public bool SetValueWitchCheck(string platform, string variant, T value, bool saveImmediate = false)
+        public bool SetValueWithCheck(string platform, string variant, T value, bool saveImmediate = false)
         {
             Initialize();
 
@@ -519,6 +519,12 @@ namespace SettingsManagement
             }
             value = default(T);
             return false;
+        }
+
+        public void SetDiry()
+        {
+            Initialize();
+            SetValue(Value, true); 
         }
 
         public delegate T ValueFactoryDelegate();

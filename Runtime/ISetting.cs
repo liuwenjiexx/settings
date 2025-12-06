@@ -57,6 +57,7 @@ namespace SettingsManagement
         /// </summary>
         void Reset(string platform, string variant, bool saveImmediate = false);
 
+        void SetDiry();
 
     }
 }
