@@ -1,4 +1,5 @@
 using SettingsManagement.Editor;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -29,4 +30,33 @@ namespace SettingsManagement.Editor
             return objectField;
         }
     }
+
+
+    [CustomInputView(typeof(AssetGuid))]
+    public class AssetGuidInputView : InputView
+    {
+        ObjectField input;
+
+        public override VisualElement CreateView()
+        {
+            input = new ObjectField();
+            input.label = DisplayName;
+            input.objectType = typeof(UnityEngine.Object);
+
+            input.RegisterValueChangedCallback(e =>
+            {
+                AssetGuid assetGuid = new AssetGuid(input.value);
+                OnValueChanged(assetGuid);
+            });
+             
+            return input;
+        }
+
+        public override void SetValue(object value)
+        {
+            AssetGuid v = (AssetGuid)value;
+            input.SetValueWithoutNotify(v.Target);
+        }
+    }
+
 }

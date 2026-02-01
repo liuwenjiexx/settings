@@ -19,11 +19,17 @@ using SettingsManagement;
 [assembly: Settings(typeof(PlayerSettings.tvOS))]
 [assembly: Settings(typeof(PlayerSettings.WebGL))]
 [assembly: Settings(typeof(PlayerSettings.WSA))]
-[assembly: Settings(typeof(PlayerSettings.XboxOne))]
 [assembly: Settings(typeof(EditorSettings))]
 [assembly: Settings(typeof(EditorBuildSettings))]
 [assembly: Settings(typeof(EditorUserBuildSettings))]
+
 #if UNITY_2022_1_OR_NEWER
 [assembly: Settings(typeof(PlayerSettings.QNX))]
 [assembly: Settings(typeof(PlayerSettings.VisionOS))]
+#endif
+
+#if UNITY_2021_1_OR_NEWER
+
+#else
+[assembly: Settings(typeof(PlayerSettings.XboxOne))]
 #endif

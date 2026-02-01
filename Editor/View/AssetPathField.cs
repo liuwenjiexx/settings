@@ -18,13 +18,16 @@ namespace SettingsManagement.Editor
         {
             input = new ObjectField();
             input.label = DisplayName;
-            input.objectType = typeof(GameObject);
+            //input.objectType = typeof(GameObject);
+            input.objectType = typeof(UnityEngine.Object);
             input.RegisterValueChangedCallback(e =>
             {
-                var prefab = e.newValue as GameObject;
-                AssetPath newValue;
-                newValue = new AssetPath(prefab);
-                OnValueChanged(newValue);
+                /*  var prefab = e.newValue as GameObject;
+                  AssetPath newValue;
+                  newValue = new AssetPath(prefab);
+                  OnValueChanged(newValue);*/
+                AssetGuid assetGuid = new AssetGuid(input.value);
+                OnValueChanged(assetGuid);
             });
 
             return input;
@@ -32,12 +35,15 @@ namespace SettingsManagement.Editor
 
         public override void SetValue(object value)
         {
-            GameObject prefab = null;
-            if (value is AssetPath assetPath)
-            {
-                prefab = assetPath.Asset as GameObject;
-            }
-            input.SetValueWithoutNotify(prefab);
+            /*  GameObject prefab = null;
+              if (value is AssetPath assetPath)
+              {
+                  prefab = assetPath.Asset as GameObject;
+              }
+              input.SetValueWithoutNotify(prefab);
+              */
+            AssetGuid v = (AssetGuid)value;
+            input.SetValueWithoutNotify(v.Target);
         }
     }
 

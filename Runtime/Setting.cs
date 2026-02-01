@@ -13,7 +13,7 @@ namespace SettingsManagement
         private T value;
         private T defaultValue;
         private ValueFactoryDelegate valueFactory;
-        private bool isValueCreated;  
+        private bool isValueCreated;
         private GetParentDelegate tryGetParentValue;
 
         public delegate Setting<T> GetParentDelegate(string key);
@@ -86,9 +86,9 @@ namespace SettingsManagement
 
         public string RepositoryName => repositoryName;
 
-        object ISetting.DefaultValue => DefaultValue;
+        object ISetting.DefaultValue => CopyDefaultValue;
 
-        public T DefaultValue
+        public T CopyDefaultValue
         {
             get
             {
@@ -103,8 +103,21 @@ namespace SettingsManagement
 
         public T Value
         {
-            get => GetValue();
-            set => SetValue(value, true);
+            get
+            {
+                Initialize();
+                return GetOrDefault(PlatformNames.Current2, SettingsUtility.Variant, this.value);
+            }
+            set => SetValueIfChange(value, true);
+        }
+
+        public T EffectiveValue
+        {
+            get
+            {
+                Initialize();
+                return GetOrDefault(PlatformNames.Current2, SettingsUtility.Variant, this.value);
+            }
         }
 
         public Type ValueType => typeof(T);
@@ -176,14 +189,16 @@ namespace SettingsManagement
             }
             else
             {
+
+
                 //if (valueFactory != null)
                 //{
                 //    value = (T)valueFactory(PlatformNames.Default);
                 //}
                 //else
-                //{
-                value = DefaultValue;
+                //{ 
                 //}
+                value = CopyDefaultValue;
             }
 
             //if (!typeof(T).IsValueType)
@@ -220,6 +235,26 @@ namespace SettingsManagement
         }
 
 
+        private T GetOrDefault(string platform, string variant, T defaultValue)
+        {
+            Initialize();
+
+            T value;
+            if (IsCombine)
+            {
+                SettingsUtility.GetCombineValues(this, platform, variant, out value);
+                return value;
+            }
+
+            if (!TryGetValue(platform, variant, out value))
+            {
+                //避免引用类型导致每次克隆新实例
+                value = defaultValue;
+            }
+
+            return value;
+        }
+
         object ISetting.GetValue(string platform, string variant) => GetValue(platform, variant);
 
         public virtual T GetValue(string platform, string variant)
@@ -241,7 +276,7 @@ namespace SettingsManagement
                 }
                 else
                 {
-                    value = DefaultValue;
+                    value = CopyDefaultValue;
                 }
             }
 
@@ -272,7 +307,7 @@ namespace SettingsManagement
             }
 
 
-            return DefaultValue;
+            return CopyDefaultValue;
         }
 
 
@@ -381,11 +416,20 @@ namespace SettingsManagement
 
         public bool SetValueWithCheck(T value, bool saveImmediate = false)
         {
-            return SetValueWithCheck(PlatformNames.Default, null, value, saveImmediate);
+            return SetValueIfChange(value, saveImmediate);
         }
 
-  
         public bool SetValueWithCheck(string platform, string variant, T value, bool saveImmediate = false)
+        {
+            return SetValueIfChange(platform, variant, value, saveImmediate);
+        }
+        public bool SetValueIfChange(T value, bool saveImmediate = false)
+        {
+            return SetValueIfChange(PlatformNames.Default, null, value, saveImmediate);
+        }
+
+
+        public bool SetValueIfChange(string platform, string variant, T value, bool saveImmediate = false)
         {
             Initialize();
 
@@ -471,7 +515,7 @@ namespace SettingsManagement
 
             if (platform == PlatformNames.Default && variant == null)
             {
-                value = DefaultValue;
+                value = CopyDefaultValue;
             }
         }
 
@@ -486,7 +530,7 @@ namespace SettingsManagement
         {
             Initialize();
             T oldValue = GetValue(platform, variant);
-            T newValue = DefaultValue;
+            T newValue = CopyDefaultValue;
             if (!object.Equals(oldValue, newValue))
             {
                 SetValue(platform, variant, newValue, saveImmediate);
@@ -524,8 +568,14 @@ namespace SettingsManagement
         public void SetDiry()
         {
             Initialize();
-            SetValue(Value, true); 
+            SetValue(this.value, true);
         }
+
+        //public void EnsureDefault()
+        //{
+        //    Initialize();
+        //    SetValue(PlatformNames.Default, null, value);
+        //}
 
         public delegate T ValueFactoryDelegate();
 

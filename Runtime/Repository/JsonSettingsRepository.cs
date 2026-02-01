@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 
 namespace SettingsManagement
@@ -185,7 +182,11 @@ namespace SettingsManagement
             if (initialized)
                 return;
             initialized = true;
-            string json = loadCallback();
+            string json = null;
+            if (loadCallback != null)
+            {
+                json = loadCallback();
+            }
             Load(json);
         }
 
