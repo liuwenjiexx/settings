@@ -237,6 +237,7 @@ namespace SettingsManagement
 
         private T GetOrDefault(string platform, string variant, T defaultValue)
         {
+            platform = platform ?? PlatformNames.Default;
             Initialize();
 
             T value;
@@ -259,6 +260,7 @@ namespace SettingsManagement
 
         public virtual T GetValue(string platform, string variant)
         {
+            platform = platform ?? PlatformNames.Default;
             Initialize();
 
             T value;
@@ -377,8 +379,8 @@ namespace SettingsManagement
 
         public bool SetValue(string platform, string variant, T value, bool saveImmediate = false)
         {
+            platform = platform ?? PlatformNames.Default;
             Initialize();
-
 
             //bool changed = false;
             //if (!settings.ContainsKey<T>(platform, key, repositoryName, scope))
@@ -497,6 +499,7 @@ namespace SettingsManagement
 
         public void Delete(string platform, string variant, bool saveImmediate = false)
         {
+            platform = platform ?? PlatformNames.Default;
             Initialize();
             bool changed = false;
 
@@ -528,6 +531,7 @@ namespace SettingsManagement
 
         public void Reset(string platform, string variant, bool saveImmediate = false)
         {
+            platform = platform ?? PlatformNames.Default;
             Initialize();
             T oldValue = GetValue(platform, variant);
             T newValue = CopyDefaultValue;

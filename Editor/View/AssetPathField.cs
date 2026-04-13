@@ -26,7 +26,7 @@ namespace SettingsManagement.Editor
                   AssetPath newValue;
                   newValue = new AssetPath(prefab);
                   OnValueChanged(newValue);*/
-                AssetGuid assetGuid = new AssetGuid(input.value);
+                AssetPath assetGuid = new AssetPath(input.value);
                 OnValueChanged(assetGuid);
             });
 
@@ -42,7 +42,7 @@ namespace SettingsManagement.Editor
               }
               input.SetValueWithoutNotify(prefab);
               */
-            AssetGuid v = (AssetGuid)value;
+            AssetPath v = (AssetPath)value;
             input.SetValueWithoutNotify(v.Target);
         }
     }
@@ -58,7 +58,7 @@ namespace SettingsManagement.Editor
             objectField.RegisterValueChangedCallback(e =>
             {
                 AssetPath assetPath = new AssetPath(objectField.value);
-                SerializedPropertyUtility.SetObjectOfProperty(property, assetPath); 
+                SerializedPropertyUtility.SetObjectOfProperty(property, assetPath);
                 property.serializedObject.Update();
                 EditorUtility.SetDirty(property.serializedObject.targetObject);
             });
