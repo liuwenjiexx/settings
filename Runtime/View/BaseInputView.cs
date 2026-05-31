@@ -1,15 +1,19 @@
+using SettingsManagement;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+#if UNITY_EDITOR
+using UnityEditor.UIElements;
+#endif
 
-namespace SettingsManagement.Editor
+namespace SettingsManagement.UIElements
 {
 
-    class BaseInputView : InputView
+    class BaseInputView<TView> : InputView
     {
+        /*
         static Dictionary<Type, Type> baseInputFieldTypes = new()
         {
             { typeof(string),typeof(TextField)},
@@ -39,13 +43,15 @@ namespace SettingsManagement.Editor
         {
             return baseInputFieldTypes.ContainsKey(type);
         }
-
+        */
         static MethodInfo registerValueChangedCallbackMethod;
 
         static MethodInfo RegisterValueChangedCallbackMethod => registerValueChangedCallbackMethod ??= typeof(INotifyValueChangedExtensions).GetMethod("RegisterValueChangedCallback");
-        Type viewType;
+        Type viewType => typeof(TView);
         Type viewValueType;
         VisualElement input;
+
+
 
         public override void SetValue(object value)
         {
@@ -61,7 +67,7 @@ namespace SettingsManagement.Editor
 
         public override VisualElement CreateView()
         {
-            viewType = baseInputFieldTypes[ValueType];
+            //viewType = baseInputFieldTypes[ValueType]; 
 
             input = Activator.CreateInstance(viewType) as VisualElement;
 
@@ -74,19 +80,22 @@ namespace SettingsManagement.Editor
                 viewValueType = ValueType;
             }
 
-            var ValueChangedCallbackMethod = GetType().GetMethod(nameof(ValueChangedCallback), BindingFlags.NonPublic | BindingFlags.Instance);
-
-            var delType = typeof(EventCallback<>).MakeGenericType(typeof(ChangeEvent<>).MakeGenericType(viewValueType));
-
             Delegate del;
+            Type delType;
+            var ValueChangedCallbackMethod = GetType().GetMethod(nameof(ValueChangedCallback), BindingFlags.NonPublic | BindingFlags.Instance);
+             
+
+            delType = typeof(EventCallback<>).MakeGenericType(typeof(ChangeEvent<>).MakeGenericType(viewValueType));
             del = Delegate.CreateDelegate(delType, this, ValueChangedCallbackMethod.MakeGenericMethod(viewValueType));
+          
+
             RegisterValueChangedCallbackMethod.MakeGenericMethod(viewValueType)
                 .Invoke(null, new object[] { input, del });
 
             return input;
         }
 
-        void ValueChangedCallback<T>(ChangeEvent<T> e)
+        protected void ValueChangedCallback<T>(ChangeEvent<T> e)
         {
             //Setting.SetValue(Platform, e.newValue, true);
             object newValue = e.newValue;
@@ -99,29 +108,71 @@ namespace SettingsManagement.Editor
         }
     }
 
+    [CustomInputView(typeof(string))]
+    class TextInputView : BaseInputView<TextField> { }
 
-    [CustomInputView(typeof(Enum))]
-    public class EnumInputView : InputView
-    {
-        EnumField input;
-        public override VisualElement CreateView()
-        {
-            input = new EnumField();
-            input.label = DisplayName;
-            input.Init((Enum)Activator.CreateInstance(ValueType));
-            input.RegisterValueChangedCallback(e =>
-            {
-                OnValueChanged(e.newValue);
-            });
+    [CustomInputView(typeof(short))]
 
-            return input;
-        }
+    [CustomInputView(typeof(int))]
+    //class ShortInputView : BaseInputView<IntegerField> { }
+    class IntInputView : BaseInputView<IntegerField> { }
 
-        public override void SetValue(object value)
-        {
-            Enum @enum = (Enum)Convert.ChangeType(value, typeof(Enum));
-            input.SetValueWithoutNotify(@enum);
-        }
-    }
+    [CustomInputView(typeof(long))]
+    class LongInputView : BaseInputView<LongField> { }
 
+    [CustomInputView(typeof(float))]
+    class FloatInputView : BaseInputView<FloatField> { }
+
+    [CustomInputView(typeof(double))]
+    class DoubleInputView : BaseInputView<DoubleField> { }
+
+    [CustomInputView(typeof(bool))]
+    class BooleanInputView : BaseInputView<Toggle> { }
+
+    [CustomInputView(typeof(Vector2))]
+    class Vector2InputView : BaseInputView<Vector2Field> { }
+
+    [CustomInputView(typeof(Vector2Int))]
+    class Vector2IntInputView : BaseInputView<Vector2IntField> { }
+
+    [CustomInputView(typeof(Vector3))]
+    class Vector3InputView : BaseInputView<Vector3Field> { }
+
+    [CustomInputView(typeof(Vector3Int))]
+    class Vector3IntInputView : BaseInputView<Vector3IntField> { }
+
+    [CustomInputView(typeof(Vector4))]
+    class Vector4InputView : BaseInputView<Vector4Field> { }
+
+
+    [CustomInputView(typeof(Rect))]
+    class RectInputView : BaseInputView<RectField> { }
+
+
+    [CustomInputView(typeof(Bounds))]
+    class BoundsInputView : BaseInputView<BoundsField> { }
+
+
+#if UNITY_2022_1_OR_NEWER
+
+    [CustomInputView(typeof(ushort))]
+
+    [CustomInputView(typeof(uint))]
+    class UShortInputView : BaseInputView<UnsignedIntegerField> { }
+    //class UIntInputView : BaseInputView< UnsignedIntegerField> { }
+
+    [CustomInputView(typeof(ulong))]
+    class ULongInputView : BaseInputView<UnsignedLongField> { }
+
+
+#endif
+
+#if UNITY_EDITOR
+    [CustomInputView(typeof(Color))]
+    class ColorInputView : BaseInputView<ColorField> { }
+
+    [CustomInputView(typeof(AnimationCurve))]
+    class CurveInputView : BaseInputView<CurveField> { }
+
+#endif
 }

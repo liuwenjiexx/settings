@@ -54,13 +54,76 @@ namespace SettingsManagement
 
         public IReadOnlyCollection<ISettingsRepository> Repositories => repositories;
 
+
+        private static string variant;
+        private static List<string> _variants = null;
+
+        public static string Variant
+        {
+            get
+            {
+                if (_variants == null)
+                {
+                    InitilizeVariants(SettingSettings.Variant);
+                }
+
+                return variant;
+            }
+        }
+
+        public static IReadOnlyList<string> Variants
+        {
+            get
+            {
+                if (_variants == null)
+                {
+                    InitilizeVariants(SettingSettings.Variant);
+                }
+                return _variants;
+            }
+        }
+
         public event Action BeforeSaved;
         public event Action AfterSaved;
 
+        public static event Action VariantChanged;
 
 
+        public static void SetVariant(string variant)
+        {
+            if (string.IsNullOrEmpty(variant))
+                variant = null;
+            if (variant == SettingSettings.DefaultVariantName)
+                variant = null;
+            if (Variant == variant)
+            {
+                return;
+            }
+            InitilizeVariants(variant);
+            VariantChanged?.Invoke();
+        }
 
+        internal static void InitilizeVariants(string variant)
+        {
+            _variants = new List<string>();
 
+            string baseVariant = variant;
+            while (true)
+            {
+                if (string.IsNullOrEmpty(baseVariant))
+                    break;
+                _variants.Add(baseVariant);
+                var variantConfig = SettingSettings.Variants.FirstOrDefault(o => o.variant == baseVariant);
+                if (variantConfig == null)
+                {
+                    throw new Exception($"Variant config null '{baseVariant}'");
+                }
+                baseVariant = variantConfig.baseVariant;
+            }
+
+            _variants.Add(null);
+            Settings.variant = _variants[0];
+        }
 
         public ISettingsRepository GetRepository(SettingsScope scope)
         {
@@ -254,6 +317,7 @@ namespace SettingsManagement
             }
 
         }
+
 
     }
 

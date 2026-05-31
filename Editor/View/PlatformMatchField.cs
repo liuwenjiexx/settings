@@ -1,13 +1,8 @@
-using Codice.Client.Common;
+using SettingsManagement.UIElements;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using UnityEngine.UIElements;
-using SettingsManagement;
-using SettingsManagement.Editor;
-using UnityEditor.UIElements;
 
 namespace SettingsManagement.Editor
 {

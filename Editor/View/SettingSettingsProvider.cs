@@ -1,3 +1,4 @@
+using SettingsManagement.UIElements;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -40,7 +41,7 @@ namespace SettingsManagement.Editor
             var root = EditorSettingsUtility.CreateSettingsWindow(rootElement, "Settings", helpLink: helpFile);
             root = EditorSettingsUtility.LoadUXML(root, EditorSettingsUtility.GetEditorUXMLPath(SettingsUtility.GetPackageName(typeof(SettingSettingsProvider)), nameof(SettingSettingsProvider)));
 
-            SettingsUtility.VariantChanged += OnVariantChanged;
+            Settings.VariantChanged += OnVariantChanged;
 
             variantField = root.Q<DropdownField>("variant");
             variantPriorityField = root.Q("variant-priority").Q<Label>(className: "unity-base-field__input");
@@ -56,7 +57,7 @@ namespace SettingsManagement.Editor
 
                 string variant = SettingsUtility.DisplayToVariant(e.newValue);
                 SettingSettings.Variant = variant;
-                SettingsUtility.SetVariant(variant);
+                Settings.SetVariant(variant);
             });
 
 
@@ -113,9 +114,9 @@ namespace SettingsManagement.Editor
                         {
                             SettingSettings.Variant = null;
                         }
-                        if (SettingsUtility.Variant == variantConfig.variant)
+                        if (Settings.Variant == variantConfig.variant)
                         {
-                            SettingsUtility.SetVariant(null);
+                            Settings.SetVariant(null);
                         }
 
                         OnVariantChanged();
@@ -429,7 +430,7 @@ namespace SettingsManagement.Editor
 
         public override void OnDeactivate()
         {
-            SettingsUtility.VariantChanged -= OnVariantChanged;
+            Settings.VariantChanged -= OnVariantChanged;
             base.OnDeactivate();
         }
 
@@ -446,14 +447,14 @@ namespace SettingsManagement.Editor
             isSetValue = true;
             variantField.choices.Clear();
             variantField.choices.AddRange(SettingsUtility.GetDisplayVariantNames());
-            variantField.SetValueWithoutNotify(SettingsUtility.GetDisplayVariantName(SettingsUtility.Variant));
+            variantField.SetValueWithoutNotify(SettingsUtility.GetDisplayVariantName(Settings.Variant));
 
             EditorApplication.delayCall += () =>
             {
                 isSetValue = false;
             };
 
-            variantPriorityField.text = string.Join(", ", SettingsUtility.Variants.Select(o =>
+            variantPriorityField.text = string.Join(", ", Settings.Variants.Select(o =>
             {
                 if (o == null)
                     return SettingSettings.DefaultVariantName;

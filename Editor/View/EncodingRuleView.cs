@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using SettingsManagement.Editor;
 using UnityEditor.UIElements;
+using SettingsManagement;
+using SettingsManagement.UIElements;
 
 namespace Unity.Text.Editor
 {

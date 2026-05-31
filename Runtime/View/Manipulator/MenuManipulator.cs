@@ -1,7 +1,7 @@
 using System;
 using UnityEngine.UIElements;
 
-namespace SettingsManagement.Editor
+namespace SettingsManagement.UIElements
 {
     public class MenuManipulator : MouseManipulator
     {

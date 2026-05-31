@@ -9,7 +9,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace SettingsManagement.Editor
+namespace SettingsManagement.UIElements
 {
 
     public class ArrayView : InputView
@@ -227,12 +227,12 @@ namespace SettingsManagement.Editor
 
             if (FieldAttribue != null)
             {
-                inputViewType = EditorSettingsUtility.GetInputViewType(FieldAttribue.GetType());
+                inputViewType = SettingsViewUtility.GetInputViewType(FieldAttribue.GetType());
             }
 
             if (inputViewType == null)
             {
-                inputViewType = EditorSettingsUtility.GetInputViewType(ItemType);
+                inputViewType = SettingsViewUtility.GetInputViewType(ItemType);
             }
 
             var dragManipulator = new DragManipulator(this);
@@ -256,7 +256,9 @@ namespace SettingsManagement.Editor
                 draggable.AddToClassList(SettingsArrayPanel_Item_Draggable_ClassName);
                 draggable.userData = itemIndex;
                 draggable.AddManipulator(dragManipulator);
+#if UNITY_EDITOR
                 draggable.image = EditorGUIUtility.IconContent("d_PauseButton")?.image;
+#endif
                 itemContainer.Add(draggable);
 
                 VisualElement itemContent = new VisualElement();

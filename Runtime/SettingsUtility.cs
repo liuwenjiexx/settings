@@ -1,16 +1,18 @@
+using SettingsManagement.UIElements;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 namespace SettingsManagement
 {
     public static class SettingsUtility
     {
-        public static event Action VariantChanged;
 
         #region Assembly Metadata
 
@@ -75,6 +77,38 @@ namespace SettingsManagement
             return packageName;
         }
 
+
+        public static IEnumerable<Assembly> ReferencedAssemblies(Assembly referenced, IEnumerable<Assembly> assemblies)
+        {
+            string fullName = referenced.FullName;
+
+            foreach (var ass in assemblies)
+            {
+                if (referenced == ass)
+                {
+                    yield return ass;
+                }
+                else
+                {
+                    foreach (var refAss in ass.GetReferencedAssemblies())
+                    {
+                        if (fullName == refAss.FullName)
+                        {
+                            yield return ass;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static IEnumerable<Assembly> ReferencedAssemblies(Assembly referenced)
+        {
+            return ReferencedAssemblies(referenced, AppDomain.CurrentDomain.GetAssemblies());
+        }
+
+
+
         public static object GetDefualtValue(Type type)
         {
             if (type.IsValueType)
@@ -85,73 +119,6 @@ namespace SettingsManagement
         }
 
 
-        private static List<string> _variants = null;
-        private static string variant;
-
-
-        public static string Variant
-        {
-            get
-            {
-                if (_variants == null)
-                {
-                    InitilizeVariants(SettingSettings.Variant);
-                }
-
-                return variant;
-            }
-
-        }
-
-
-        public static IReadOnlyList<string> Variants
-        {
-            get
-            {
-                if (_variants == null)
-                {
-                    InitilizeVariants(SettingSettings.Variant);
-                }
-                return _variants;
-            }
-        }
-
-        public static void SetVariant(string variant)
-        {
-            if (string.IsNullOrEmpty(variant))
-                variant = null;
-            if (variant == SettingSettings.DefaultVariantName)
-                variant = null;
-            if (Variant == variant)
-            {
-                return;
-            }
-            InitilizeVariants(variant);
-            VariantChanged?.Invoke();
-        }
-
-        internal static void InitilizeVariants(string variant)
-        {
-            _variants = new List<string>();
-
-            string baseVariant = variant;
-            while (true)
-            {
-                if (string.IsNullOrEmpty(baseVariant))
-                    break;
-                _variants.Add(baseVariant);
-                var variantConfig = SettingSettings.Variants.FirstOrDefault(o => o.variant == baseVariant);
-                if (variantConfig == null)
-                {
-                    throw new Exception($"Variant config null '{baseVariant}'");
-                }
-                baseVariant = variantConfig.baseVariant;
-            }
-
-            _variants.Add(null);
-            SettingsUtility.variant = _variants[0];
-        }
-
         internal static IEnumerable<string> EnumerateVariants(string variant)
         {
             if (variant == null)
@@ -161,7 +128,7 @@ namespace SettingsManagement
             else
             {
                 bool match = false;
-                var variants = Variants;
+                var variants = Settings.Variants;
                 string _variant;
                 for (int i = 0; i < variants.Count; i++)
                 {
@@ -740,7 +707,25 @@ namespace SettingsManagement
 
         #endregion
 
-    }
 
+        public static IEnumerable<Type> GetTypesWithAttribute(Type attrType, bool inherit = true)
+        {
+#if UNITY_EDITOR
+            return TypeCache.GetTypesWithAttribute(attrType);
+#else
+
+            foreach (var ass in ReferencedAssemblies(attrType.Assembly))
+            {
+                foreach (var type in ass.GetTypes())
+                {
+                    if (type.IsDefined(attrType, inherit))
+                        yield return type;
+                }
+            }
+#endif
+
+        }
+
+    }
 
 }

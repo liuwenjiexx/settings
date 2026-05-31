@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using UnityEditor;
-using UnityEngine;
 
-namespace SettingsManagement.Editor
+namespace SettingsManagement.UIElements
 {
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class CustomInputViewAttribute : Attribute
     {
 
@@ -16,6 +13,6 @@ namespace SettingsManagement.Editor
 
         public Type TargetType { get; set; }
 
-      
+
     }
 }

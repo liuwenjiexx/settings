@@ -1,7 +1,7 @@
 using System;
 using UnityEngine.UIElements;
 
-namespace SettingsManagement.Editor
+namespace SettingsManagement.UIElements
 {
     public abstract class InputView
     {

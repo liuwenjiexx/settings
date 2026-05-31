@@ -106,7 +106,7 @@ namespace SettingsManagement
             get
             {
                 Initialize();
-                return GetOrDefault(PlatformNames.Current2, SettingsUtility.Variant, this.value);
+                return GetOrDefault(PlatformNames.Current2, Settings.Variant, this.value);
             }
             set => SetValueIfChange(value, true);
         }
@@ -116,7 +116,7 @@ namespace SettingsManagement
             get
             {
                 Initialize();
-                return GetOrDefault(PlatformNames.Current2, SettingsUtility.Variant, this.value);
+                return GetOrDefault(PlatformNames.Current2, Settings.Variant, this.value);
             }
         }
 
@@ -231,7 +231,7 @@ namespace SettingsManagement
 
         public T GetValue()
         {
-            return GetValue(PlatformNames.Current2, SettingsUtility.Variant);
+            return GetValue(PlatformNames.Current2, Settings.Variant);
         }
 
 
@@ -319,7 +319,7 @@ namespace SettingsManagement
         }
 
 
-        public bool TryGetValue(string platform, string variant, out T value)
+        public virtual bool TryGetValue(string platform, string variant, out T value)
         {
             Initialize();
 
@@ -358,26 +358,28 @@ namespace SettingsManagement
 
         public bool Contains(string platform, string variant)
         {
+            platform = platform ?? PlatformNames.Default;
             return settings.ContainsKey<T>(platform, variant, key, repositoryName, scope);
         }
 
         public bool DirectContains(string platform, string variant)
         {
+            platform = platform ?? PlatformNames.Default;
             return settings.ContainsKey<T>(platform, variant, key, repositoryName, scope);
         }
 
         /// <summary>
         /// 设置选项 platform: Default, variant: null
         /// </summary>
-        public bool SetValue(T value, bool saveImmediate = false)
+        public void SetValue(T value, bool saveImmediate = false)
         {
-            return SetValue(PlatformNames.Default, null, value, saveImmediate);
+            SetValue(PlatformNames.Default, null, value, saveImmediate);
         }
 
-        bool ISetting.SetValue(string platform, string variant, object value, bool saveImmediate)
+        void ISetting.SetValue(string platform, string variant, object value, bool saveImmediate)
             => SetValue(platform, variant, (T)value, saveImmediate);
 
-        public bool SetValue(string platform, string variant, T value, bool saveImmediate = false)
+        public void SetValue(string platform, string variant, T value, bool saveImmediate = false)
         {
             platform = platform ?? PlatformNames.Default;
             Initialize();
@@ -397,30 +399,21 @@ namespace SettingsManagement
             //    }
             //}
 
-            var oldValue = GetValue(platform, variant);
-            bool changed = false;
-            if (!object.Equals(oldValue, value))
-            {
-                changed = true;
-            }
-            // if (changed)
-            {
-                settings.Set<T>(platform, variant, key, value, repositoryName, scope);
-                cachedValues[(platform, variant)] = value;
 
-                if (saveImmediate)
-                {
-                    settings.Save();
-                }
+            settings.Set<T>(platform, variant, key, value, repositoryName, scope);
+            cachedValues[(platform, variant)] = value;
+
+            if (saveImmediate)
+            {
+                settings.Save();
             }
-            return changed;
         }
-
+        [Obsolete]
         public bool SetValueWithCheck(T value, bool saveImmediate = false)
         {
             return SetValueIfChange(value, saveImmediate);
         }
-
+        [Obsolete]
         public bool SetValueWithCheck(string platform, string variant, T value, bool saveImmediate = false)
         {
             return SetValueIfChange(platform, variant, value, saveImmediate);
@@ -430,6 +423,8 @@ namespace SettingsManagement
             return SetValueIfChange(PlatformNames.Default, null, value, saveImmediate);
         }
 
+        public bool SetValueIfChange(string platform, string variant, object value, bool saveImmediate = false)
+            => SetValueIfChange(platform, variant, value, saveImmediate);
 
         public bool SetValueIfChange(string platform, string variant, T value, bool saveImmediate = false)
         {
@@ -476,7 +471,7 @@ namespace SettingsManagement
             bool changed = false;
 
             cachedValues.Clear();
-            foreach (string variant in SettingsUtility.EnumerateVariants(SettingsUtility.Variant))
+            foreach (string variant in SettingsUtility.EnumerateVariants(Settings.Variant))
             {
                 foreach (string platform in PlatformNames.AllPlatforms2)
                 {
@@ -526,7 +521,7 @@ namespace SettingsManagement
 
 
         public void Reset(bool saveImmediate = false)
-            => Reset(PlatformNames.Default, SettingsUtility.Variant, saveImmediate);
+            => Reset(PlatformNames.Default, Settings.Variant, saveImmediate);
 
 
         public void Reset(string platform, string variant, bool saveImmediate = false)

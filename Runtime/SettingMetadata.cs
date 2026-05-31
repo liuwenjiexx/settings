@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace SettingsManagement.Editor
+namespace SettingsManagement.UIElements
 {
     internal class SettingMetadata
     {
@@ -176,7 +176,10 @@ namespace SettingsManagement.Editor
                     }
                     if (string.IsNullOrEmpty(member.DisplayName))
                     {
+                        member.DisplayName = member.Name;
+#if UNITY_EDITOR
                         member.DisplayName = ObjectNames.NicifyVariableName(member.Name);
+#endif
                     }
 
                     //member.ViewType = CustomSettingViewAttribute.GetViewType(valueType);
@@ -192,7 +195,7 @@ namespace SettingsManagement.Editor
                         {
                             member.FieldAttribute = inputAttr;
                         }
-                        Type viewType = EditorSettingsUtility.GetInputViewType(inputAttr.GetType());
+                        Type viewType = SettingsViewUtility.GetInputViewType(inputAttr.GetType());
                         if (viewType != null)
                         {
                             if (inputAttr.IsElement)
@@ -208,7 +211,7 @@ namespace SettingsManagement.Editor
 
                     if (member.ViewType == null)
                     {
-                        member.ViewType = EditorSettingsUtility.GetInputViewType(settingType);
+                        member.ViewType = SettingsViewUtility.GetInputViewType(settingType);
                     }
 
 
@@ -228,7 +231,7 @@ namespace SettingsManagement.Editor
             {
                 if (ownerMetadata.SettingType == typeof(MemberSettings))
                 {
-                    var memberSettings = EditorSettingsUtility.GetValue(ownerMetadata.Member, instance) as MemberSettings;
+                    var memberSettings = SettingsViewUtility.GetValue(ownerMetadata.Member, instance) as MemberSettings;
                     foreach (var setting in memberSettings.SettingList)
                     {
                         var member = setting.TargetMember;
@@ -238,7 +241,10 @@ namespace SettingsManagement.Editor
                         SettingMetadata metadata = new SettingMetadata();
                         metadata.OwnerSettings = memberSettings;
                         metadata.SettingType = settingType;
-                        metadata.DisplayName = $"{ObjectNames.NicifyVariableName(member.Name)}";
+                        metadata.DisplayName = member.Name;
+#if UNITY_EDITOR
+                        metadata.DisplayName = $"{ObjectNames.NicifyVariableName(metadata.DisplayName)}";
+#endif
                         metadata.Tooltip = $"{member.DeclaringType.FullName}: {member.Name}";
                         if ((ownerMetadata.IsMultiPlatform.HasValue && ownerMetadata.IsMultiPlatform.Value) || member.IsDefined(typeof(MultiPlatformAttribute), true))
                         {
@@ -254,7 +260,7 @@ namespace SettingsManagement.Editor
                             var fInfo = member as FieldInfo;
                             metadata.ValueType = fInfo.FieldType;
                         }
-                        metadata.ViewType = EditorSettingsUtility.GetInputViewType(settingType);
+                        metadata.ViewType = SettingsViewUtility.GetInputViewType(settingType);
                         metadata.Name = $"{member.DeclaringType.FullName}{member.Name}";
 
                      

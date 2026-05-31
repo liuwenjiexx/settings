@@ -40,7 +40,8 @@ namespace SettingsManagement
         object CopyValue(string platform, string variant);
 
 
-        bool SetValue(string platform, string variant, object value, bool saveImmediate = false);
+        void SetValue(string platform, string variant, object value, bool saveImmediate = false);
+        bool SetValueIfChange(string platform, string variant, object value, bool saveImmediate = false);
 
         /// <summary>
         /// 删除所有平台值

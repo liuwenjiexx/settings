@@ -1,12 +1,10 @@
 using System;
 using System.Collections;
-using System.Diagnostics;
 using System.Reflection;
 using UnityEngine.UIElements;
-using Debug = UnityEngine.Debug;
 
 
-namespace SettingsManagement.Editor
+namespace SettingsManagement.UIElements
 {
     public class SettingField
     {
@@ -34,7 +32,7 @@ namespace SettingsManagement.Editor
 
         public string Platform { get; internal set; }
 
-        public string Variant { get => SettingsUtility.Variant; }
+        public string Variant { get => Settings.Variant; }
 
         public Type ValueType => Setting.ValueType;
 
@@ -64,7 +62,7 @@ namespace SettingsManagement.Editor
 
             if (viewType == null)
             {
-                viewType = EditorSettingsUtility.GetInputViewType(ValueType);
+                viewType = SettingsViewUtility.GetInputViewType(ValueType);
             }
 
             View = new VisualElement();
@@ -110,10 +108,10 @@ namespace SettingsManagement.Editor
             inputViewElem.tooltip = Tooltip;
 
             InputView.ValueChanged += OnValueChanged;
-            SettingsUtility.VariantChanged += SettingsUtility_VariantChanged;
+            Settings.VariantChanged += SettingsUtility_VariantChanged;
             View.RegisterCallback<DetachFromPanelEvent>(e =>
             {
-                SettingsUtility.VariantChanged -= SettingsUtility_VariantChanged;
+                Settings.VariantChanged -= SettingsUtility_VariantChanged;
             });
 
             if (label != null)
@@ -178,7 +176,7 @@ namespace SettingsManagement.Editor
                     };
                 }
 
-                updateLabel = EditorSettingsUtility.InitializeSettingFieldLabel(
+                updateLabel = SettingsViewUtility.InitializeSettingFieldLabel(
                     Setting,
                     label,
                     hasValue: (setting) =>
@@ -269,7 +267,7 @@ namespace SettingsManagement.Editor
 
             if (label != null)
             {
-                EditorSettingsUtility.UpdateSettingFieldLabel(label, IsBoldLabel());
+                SettingsViewUtility.UpdateSettingFieldLabel(label, IsBoldLabel());
             }
 
         }
