@@ -22,14 +22,14 @@ namespace SettingsManagement.Tests
             variantString.Delete(PlatformNames.Default, demoVariant);
             variantString.Delete(PlatformNames.Default, demoDebugVariant);
 
-            SettingsUtility.SetVariant(null);
+            Settings.SetVariant(null);
         }
 
         [TearDown]
         public void TearDown()
         {
             variantString.Delete();
-            SettingsUtility.SetVariant(null);
+            Settings.SetVariant(null);
         }
 
         [Test]
@@ -58,7 +58,7 @@ namespace SettingsManagement.Tests
             Assert.AreEqual(string.Empty, variantString.GetValue(PlatformNames.Default, null));
             Assert.AreEqual(string.Empty, variantString.GetValue(PlatformNames.Default, debugVariant));
 
-            SettingsUtility.SetVariant(debugVariant);
+            Settings.SetVariant(debugVariant);
 
             variantString.SetValue(PlatformNames.Default, debugVariant, "abc.debug", true);
             Assert.AreEqual(string.Empty, variantString.GetValue(PlatformNames.Default, null));
@@ -73,7 +73,7 @@ namespace SettingsManagement.Tests
             variantString.SetValue(PlatformNames.Default, null, "abc", true);
             variantString.SetValue(PlatformNames.Default, debugVariant, "abc.debug", true);
 
-            SettingsUtility.SetVariant(null);
+            Settings.SetVariant(null);
 
             Assert.AreEqual("abc", variantString.GetValue(PlatformNames.Default, null));
             Assert.AreEqual("abc", variantString.GetValue(PlatformNames.Default, debugVariant));
@@ -89,7 +89,7 @@ namespace SettingsManagement.Tests
             variantString.SetValue(PlatformNames.Default, demoVariant, "abc.demo", true);
             variantString.SetValue(PlatformNames.Default, demoDebugVariant, "abc.demo_debug", true);
 
-            SettingsUtility.SetVariant(debugVariant);
+            Settings.SetVariant(debugVariant);
 
             Assert.AreEqual("abc", variantString.GetValue(PlatformNames.Default, null));
             Assert.AreEqual("abc.debug", variantString.GetValue(PlatformNames.Default, debugVariant));
@@ -100,7 +100,7 @@ namespace SettingsManagement.Tests
         [Test]
         public void Demo()
         {
-            SettingsUtility.SetVariant(demoVariant);
+            Settings.SetVariant(demoVariant);
 
             variantString.SetValue(PlatformNames.Default, null, "abc", true);
             variantString.SetValue(PlatformNames.Default, debugVariant, "abc.debug", true);
@@ -119,7 +119,7 @@ namespace SettingsManagement.Tests
         [Test]
         public void DemoDebug()
         {
-            SettingsUtility.SetVariant(demoDebugVariant);
+            Settings.SetVariant(demoDebugVariant);
 
             variantString.SetValue(PlatformNames.Default, null, "abc");
             variantString.SetValue(PlatformNames.Default, debugVariant, "abc.debug");
@@ -138,7 +138,7 @@ namespace SettingsManagement.Tests
         [Test]
         public void NoDemoDebug()
         {
-            SettingsUtility.SetVariant(demoDebugVariant);
+            Settings.SetVariant(demoDebugVariant);
 
             variantString.SetValue(PlatformNames.Default, null, "abc");
             variantString.SetValue(PlatformNames.Default, demoVariant, "abc.demo");
@@ -149,7 +149,7 @@ namespace SettingsManagement.Tests
         [Test]
         public void NoDemo()
         {
-            SettingsUtility.SetVariant(demoDebugVariant);
+            Settings.SetVariant(demoDebugVariant);
 
             variantString.SetValue(PlatformNames.Default, null, "abc");
 

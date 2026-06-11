@@ -287,7 +287,7 @@ namespace SettingsManagement.Editor
                             if (SettingSettings.UserEnvironmentVariables.ContainsKey(item.Key))
                             {
                                 SettingSettings.UserEnvironmentVariables.Remove(item.Key);
-                                SettingSettings.UserEnvironmentVariables = SettingSettings.UserEnvironmentVariables;
+                                SettingSettings.DiryUserEnvironmentVariables();
                                 OnEnvVariableChanged();
                             }
 
@@ -317,7 +317,7 @@ namespace SettingsManagement.Editor
                             if (SettingSettings.UserEnvironmentVariables.ContainsKey(item.Key))
                             {
                                 SettingSettings.UserEnvironmentVariables[item.Key] = value;
-                                SettingSettings.UserEnvironmentVariables = SettingSettings.UserEnvironmentVariables;
+                                SettingSettings.DiryUserEnvironmentVariables() ;
                                 OnEnvVariableChanged();
                             }
                         }
@@ -343,7 +343,7 @@ namespace SettingsManagement.Editor
                             if (!SettingSettings.UserEnvironmentVariables.ContainsKey(name))
                             {
                                 SettingSettings.UserEnvironmentVariables.Add(name, null);
-                                SettingSettings.UserEnvironmentVariables = SettingSettings.UserEnvironmentVariables;
+                                SettingSettings.DiryUserEnvironmentVariables() ;
                                 OnEnvVariableChanged();
                             }
                             else

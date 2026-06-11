@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SettingsManagement
 {
-    [Serializable]
+   /* [Serializable]
     public class SerializableType : ISerializationCallbackReceiver
     {
         public SerializableType()
@@ -60,5 +60,5 @@ namespace SettingsManagement
         {
 
         }
-    }
+    }*/
 }

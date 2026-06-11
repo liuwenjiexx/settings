@@ -4,7 +4,7 @@ using System.Diagnostics;
 using UnityEngine;
 
 namespace SettingsManagement
-{
+{/*
 
     [Serializable]
     [DebuggerDisplay("Count = {Count}")]
@@ -50,4 +50,5 @@ namespace SettingsManagement
             }
         }
     }
+    */
 }

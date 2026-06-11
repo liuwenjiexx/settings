@@ -2,8 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing.Printing;
 using System.Linq;
+using Unity.Serialization;
 using UnityEngine;
 
 namespace SettingsManagement
@@ -115,7 +115,7 @@ namespace SettingsManagement
         [InspectorName("Debug Environment Variable")]
         private static Setting<SerializableDictionary<string, string>> userEnvironmentVariables = new(Settings, "DebugEnvironmentVariables", null, SettingsScope.EditorUser);
 
-        public static SerializableDictionary<string, string> UserEnvironmentVariables
+        public static Dictionary<string, string> UserEnvironmentVariables
         {
             get
             {
@@ -127,15 +127,15 @@ namespace SettingsManagement
                     value = new();
                     userEnvironmentVariables.SetValue(value, true);
                 }
-                return value;
-            }
-            set
-            {
-                if (!Application.isEditor)
-                    throw new InvalidOperationException();
+                return value.Dictionary;
+            } 
+        }
 
-                userEnvironmentVariables.SetValue(value, true);
-            }
+        public static void DiryUserEnvironmentVariables()
+        {
+            if (!Application.isEditor)
+                throw new InvalidOperationException();
+            userEnvironmentVariables.SetDiry();
         }
 
 

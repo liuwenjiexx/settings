@@ -57,10 +57,10 @@ namespace SettingsManagement.Editor
                 if (variant == SettingSettings.DefaultVariantName)
                     variant = null;
                 SettingSettings.Variant = variant;
-                SettingsUtility.SetVariant(variant);
+                Settings.SetVariant(variant);
             });
 
-            variantListField.SetValueWithoutNotify(SettingsUtility.Variant);
+            variantListField.SetValueWithoutNotify(Settings.Variant);
 
             root.Add(variantListField);
 

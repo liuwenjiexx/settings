@@ -1,5 +1,5 @@
 {
-  "name": "com.unity.settings",
+  "name": "unity.settings",
   "displayName": "Settings",
   "version": "0.0.7-preview-7",
   "unity": "2021.3",
@@ -7,5 +7,8 @@
   "samples": [],
   "author": {
     "name": ""
+  } ,
+  "dependencies": {
+    "unity.data.serialization": "0.0.1"
   }
 } 

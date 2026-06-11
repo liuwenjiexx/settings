@@ -138,10 +138,10 @@ public class ExampleSettings
     private static Setting<string> platformString = new(Settings, "platform.string", string.Empty, SettingsScope.EditorUser);
 
     public static string GetPlatformString(string platform)
-        => platformString.GetValue(platform, SettingsUtility.Variant);
+        => platformString.GetValue(platform, Settings.Variant);
 
     public static void SetPlatformString(string platform, string value)
-        => platformString.SetValue(platform, SettingsUtility.Variant, value, true);
+        => platformString.SetValue(platform, Settings.Variant, value, true);
 
 
     [MultiPlatform]

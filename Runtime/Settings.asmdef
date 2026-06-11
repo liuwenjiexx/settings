@@ -1,7 +1,9 @@
 {
     "name": "Settings",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:ccc90c7f74c90d24885debac82b0c123"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
