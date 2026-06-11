@@ -9,6 +9,6 @@
     "name": ""
   } ,
   "dependencies": {
-    "unity.data.serialization": "0.0.1"
+    "unity.serialization": "0.0.1"
   }
 } 
