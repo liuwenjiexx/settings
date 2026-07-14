@@ -192,7 +192,7 @@ namespace SettingsManagement
 
         public static void GetCombineValues<T>(Setting<List<T>> setting, string platform, string variant, List<T> outList)
         {
-            foreach (var variant2 in EnumerateVariants(variant).Reverse())
+            foreach (var variant2 in Settings.GetVariants(variant).Reverse())
             {
                 foreach (var platform2 in PlatformNames.BasePlatforms(platform, true))
                 {
@@ -235,7 +235,7 @@ namespace SettingsManagement
             }
             list = Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType)) as IList;
 
-            foreach (var variant2 in EnumerateVariants(variant).Reverse())
+            foreach (var variant2 in Settings.GetVariants(variant).Reverse())
             {
                 foreach (var platform2 in PlatformNames.BasePlatforms(platform, true))
                 {

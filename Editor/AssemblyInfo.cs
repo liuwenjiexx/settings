@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using SettingsManagement;
 
-[assembly: AssemblyMetadata("Package.Name", "com.unity.settings")]
+[assembly: AssemblyMetadata("Package.Name", "unity.settings")]
 
 [assembly: Settings(typeof(PlayerSettings))]
 [assembly: Settings(typeof(PlayerSettings.Android))]

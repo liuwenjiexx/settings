@@ -22,6 +22,8 @@ namespace SettingsManagement
 
         public string Name => "PlayerPrefs";
 
+        public bool IsDiried { get; private set; }
+
         public string FilePath => null;
 
         private string GetKey<T>(string platform, string variant, string key)
@@ -72,6 +74,7 @@ namespace SettingsManagement
                 PlayerPrefs.SetInt(k, (int)(object)value);
             else
                 PlayerPrefs.SetString(k, ValueWrapper<T>.Serialize(value));
+            IsDiried = true;
         }
 
 
@@ -79,11 +82,13 @@ namespace SettingsManagement
         {
             string k = GetKey<T>(platform, variant, key);
             PlayerPrefs.DeleteKey(k);
+            IsDiried = true;
         }
 
         public void Save()
         {
             PlayerPrefs.Save();
+            IsDiried = false;
         }
     }
 }

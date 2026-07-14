@@ -233,7 +233,7 @@ namespace SettingsManagement
 
         public static bool IsSubplatform(string platform)
         {
-            switch(platform)
+            switch (platform)
             {
                 case Windows:
                 case OSX:
@@ -282,6 +282,17 @@ namespace SettingsManagement
             return platform;
         }
 
+        static Dictionary<(string platform, bool invert), string[]> cacheBasePlatforms = new();
+        public static string[] GetBasePlatforms(string platform, bool invert = false)
+        {
+            (string platform, bool invert) key = (platform, invert);
+            if (!cacheBasePlatforms.TryGetValue(key, out var value))
+            {
+                value = BasePlatforms(platform, invert).ToArray();
+                cacheBasePlatforms[key] = value;
+            }
+            return value;
+        }
 
         public static IEnumerable<string> BasePlatforms(string platform, bool invert = false)
         {

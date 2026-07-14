@@ -31,7 +31,7 @@ namespace SettingsManagement.Editor
         public SettingsScope Scope => SettingsScope.EditorUser;
 
         public string Name => "EditorPrefs";
-
+        public bool IsDiried { get; private set; }
         public string FilePath => null;
 
         private string GetKey<T>(string platform, string variant, string key)
@@ -52,7 +52,7 @@ namespace SettingsManagement.Editor
             return EditorPrefs.HasKey(k);
         }
 
-        public T Get<T>(string platform, string variant, string key,  T fallback = default)
+        public T Get<T>(string platform, string variant, string key, T fallback = default)
         {
             string k = GetKey<T>(platform, variant, key);
 
@@ -86,17 +86,24 @@ namespace SettingsManagement.Editor
                 EditorPrefs.SetBool(k, (bool)(object)value);
             else
                 EditorPrefs.SetString(k, ValueWrapper<T>.Serialize(value));
+            //IsDiried = true;
         }
 
 
         public void DeleteKey<T>(string platform, string variant, string key)
         {
             string k = GetKey<T>(platform, variant, key);
-            EditorPrefs.DeleteKey(k);
+
+            if (EditorPrefs.HasKey(k))
+            {
+                EditorPrefs.DeleteKey(k);
+                //IsDiried = true;
+            }
         }
 
         public void Save()
         {
+
         }
 
     }

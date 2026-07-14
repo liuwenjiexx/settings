@@ -1,5 +1,9 @@
+using Codice.Client.Common;
 using System;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine.Profiling;
+using static UnityEditor.UIElements.ToolbarMenu;
 
 namespace SettingsManagement
 {
@@ -164,7 +168,7 @@ namespace SettingsManagement
             set => valueFactory = value;
         }
 
-        Dictionary<(string platform, string variant), T> cachedValues;
+        Dictionary<PlatformVariant, T> cachedValues;
 
 
         protected void Initialize()
@@ -185,7 +189,7 @@ namespace SettingsManagement
             if (settings.ContainsKey<T>(PlatformNames.Default, null, key, repositoryName, scope))
             {
                 value = settings.Get<T>(PlatformNames.Default, null, key, repositoryName, scope);
-                cachedValues[(PlatformNames.Default, null)] = value;
+                cachedValues[new(PlatformNames.Default, null)] = value;
             }
             else
             {
@@ -220,9 +224,9 @@ namespace SettingsManagement
                 foreach (var item in cachedValues)
                 {
                     var item2 = item.Key;
-                    if (settings.ContainsKey<T>(item2.platform, item2.variant, key, repositoryName, scope))
+                    if (settings.ContainsKey<T>(item2.Platform, item2.Variant, key, repositoryName, scope))
                     {
-                        settings.Set(item2.platform, item2.variant, key, item.Value, repositoryName, scope);
+                        settings.Set(item2.Platform, item2.Variant, key, item.Value, repositoryName, scope);
                     }
                 }
             }
@@ -295,8 +299,8 @@ namespace SettingsManagement
                 value = this.value;
                 return value;
             }
-
-            if (cachedValues.TryGetValue((platform, variant), out value))
+            PlatformVariant variantKey = new(platform, variant);
+            if (cachedValues.TryGetValue(variantKey, out value))
             {
                 return value;
             }
@@ -304,7 +308,7 @@ namespace SettingsManagement
             if (settings.ContainsKey<T>(platform, variant, key, repositoryName, scope))
             {
                 value = settings.Get<T>(platform, variant, key, repositoryName, scope);
-                cachedValues[(platform, variant)] = value;
+                cachedValues[variantKey] = value;
                 return value;
             }
 
@@ -323,12 +327,16 @@ namespace SettingsManagement
         {
             Initialize();
 
+            var variants = Settings.GetVariants(variant);
+            string variant2;
 
-            foreach (var variant2 in SettingsUtility.EnumerateVariants(variant))
+            for (int i = 0; i < variants.Length; i++)
             {
-                foreach (var platform2 in PlatformNames.BasePlatforms(platform))
+                variant2 = variants[i];
+
+                foreach (var platform2 in PlatformNames.GetBasePlatforms(platform))
                 {
-                    if (cachedValues.TryGetValue((platform2, variant2), out value))
+                    if (cachedValues.TryGetValue(new(platform2, variant2), out value))
                     {
                         return true;
                     }
@@ -336,11 +344,12 @@ namespace SettingsManagement
                     if (settings.ContainsKey<T>(platform2, variant2, key, repositoryName, scope))
                     {
                         value = settings.Get<T>(platform2, variant2, key, repositoryName, scope);
-                        cachedValues[(platform2, variant2)] = value;
+                        cachedValues[new(platform2, variant2)] = value;
                         return true;
                     }
                 }
             }
+
 
             if (tryGetParentValue != null)
             {
@@ -401,7 +410,7 @@ namespace SettingsManagement
 
 
             settings.Set<T>(platform, variant, key, value, repositoryName, scope);
-            cachedValues[(platform, variant)] = value;
+            cachedValues[new(platform, variant)] = value;
 
             if (saveImmediate)
             {
@@ -455,7 +464,7 @@ namespace SettingsManagement
             if (changed)
             {
                 settings.Set<T>(platform, variant, key, value, repositoryName, scope);
-                cachedValues[(platform, variant)] = value;
+                cachedValues[new(platform, variant)] = value;
 
                 if (saveImmediate)
                 {
@@ -471,7 +480,7 @@ namespace SettingsManagement
             bool changed = false;
 
             cachedValues.Clear();
-            foreach (string variant in SettingsUtility.EnumerateVariants(Settings.Variant))
+            foreach (string variant in Settings.GetVariants(Settings.Variant))
             {
                 foreach (string platform in PlatformNames.AllPlatforms2)
                 {
@@ -498,7 +507,7 @@ namespace SettingsManagement
             Initialize();
             bool changed = false;
 
-            cachedValues?.Remove((platform, variant));
+            cachedValues?.Remove(new(platform, variant));
 
             if (settings.ContainsKey<T>(platform, variant, key, repositoryName, scope))
             {
@@ -564,10 +573,10 @@ namespace SettingsManagement
             return false;
         }
 
-        public void SetDiry()
+        public void SetDiry(bool saveImmediate = false)
         {
             Initialize();
-            SetValue(this.value, true);
+            SetValue(this.value, saveImmediate);
         }
 
         //public void EnsureDefault()
@@ -600,5 +609,52 @@ namespace SettingsManagement
         //}
     }
 
+    public struct PlatformVariant : IEquatable<PlatformVariant>
+    {
+        public readonly string Platform;
+        public readonly string Variant;
+
+        public PlatformVariant(string platform, string variant)
+        {
+            this.Variant = variant;
+            this.Platform = platform;
+        }
+
+        public bool Equals(PlatformVariant other)
+        {
+            return Platform == other.Platform &&
+                Variant == other.Variant;
+        }
+
+
+        public override bool Equals(object obj)
+        {
+            return obj is PlatformVariant other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 0;
+            if (Variant != null)
+                hash = Variant.GetHashCode();
+            if (Platform != null)
+                hash ^= Platform.GetHashCode();
+            return hash;
+        }
+        public override string ToString()
+        {
+            return $"{Variant}-{Platform}";
+        }
+
+        public static bool operator ==(PlatformVariant a, PlatformVariant b)
+        {
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(PlatformVariant a, PlatformVariant b)
+        {
+            return !(a == b);
+        }
+    }
 
 }

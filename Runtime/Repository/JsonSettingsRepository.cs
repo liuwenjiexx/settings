@@ -39,6 +39,8 @@ namespace SettingsManagement
             initialized = false;
         }
 
+        public bool IsDiried { get; private set; }
+
         [Serializable]
         struct SettingsEntry
         {
@@ -54,24 +56,6 @@ namespace SettingsManagement
         private List<SettingsEntry> items = new List<SettingsEntry>();
 
 
-        struct SettingsKey
-        {
-            public Type type;
-            public string platform;
-            public string variant;
-
-            public SettingsKey(Type type, string platform, string variant)
-            {
-                this.type = type;
-                this.platform = platform;
-                this.variant = variant;
-            }
-
-            public override string ToString()
-            {
-                return $"{platform}.{variant}.{type}";
-            }
-        }
         //struct VariantKey
         //{
         //    public string key;
@@ -153,13 +137,18 @@ namespace SettingsManagement
                 dic.Add(_key, entries = new());
             }
 
-            if (entries.ContainsKey(key))
+            if (entries.TryGetValue(key, out var oldValue))
             {
-                entries[key] = value;
+                if (oldValue != value)
+                {
+                    entries[key] = value;
+                    IsDiried = true;
+                }
             }
             else
             {
                 entries.Add(key, value);
+                IsDiried = true;
             }
         }
 
@@ -172,6 +161,7 @@ namespace SettingsManagement
                 return;
 
             entries.Remove(key);
+            IsDiried = true;
         }
 
         [NonSerialized]
@@ -196,7 +186,7 @@ namespace SettingsManagement
             {
                 initialized = true;
                 items = null;
-
+                IsDiried = false;
                 cachedJson = null;
 
                 if (!string.IsNullOrEmpty(json))
@@ -243,7 +233,7 @@ namespace SettingsManagement
         public void Save()
         {
             Initialize();
-
+            IsDiried = false;
             RequestSave?.Invoke();
 
             //string json = ToJson();
@@ -278,9 +268,9 @@ namespace SettingsManagement
 
                         items.Add(new SettingsEntry()
                         {
-                            platform = item.Key.platform,
-                            variant = item.Key.variant,
-                            type = item.Key.type.AssemblyQualifiedName,
+                            platform = item.Key.Platform,
+                            variant = item.Key.Variant,
+                            type = item.Key.Type.AssemblyQualifiedName,
                             key = entry.Key,
                             value = value
                         });
@@ -350,4 +340,5 @@ namespace SettingsManagement
 
 
     }
+
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace SettingsManagement
 {
@@ -57,6 +58,7 @@ namespace SettingsManagement
 
         private static string variant;
         private static List<string> _variants = null;
+        internal static readonly Dictionary<string, string[]> CacheVarintList = new();
 
         public static string Variant
         {
@@ -105,6 +107,7 @@ namespace SettingsManagement
 
         internal static void InitilizeVariants(string variant)
         {
+            CacheVarintList.Clear();
             _variants = new List<string>();
 
             string baseVariant = variant;
@@ -123,6 +126,24 @@ namespace SettingsManagement
 
             _variants.Add(null);
             Settings.variant = _variants[0];
+
+        }
+
+        internal static string[] GetVariants(string variant)
+        {
+            string[] variants;
+            string key = variant;
+            if (variant == null)
+            {
+                key = string.Empty;
+            }
+            if (!CacheVarintList.TryGetValue(key, out variants))
+            {
+                variants = SettingsUtility.EnumerateVariants(variant).ToArray();
+                CacheVarintList[key] = variants;
+            }
+
+            return variants;
         }
 
         public ISettingsRepository GetRepository(SettingsScope scope)
@@ -239,7 +260,9 @@ namespace SettingsManagement
         {
             var repo = GetRepository(repositoryName, scope, key);
             if (repo == null)
+            {
                 return false;
+            }
             return repo.ContainsKey<T>(platform, variant, key);
         }
 

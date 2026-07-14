@@ -6,6 +6,7 @@ using System.Text;
 using UnityEditor;
 #endif
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace SettingsManagement
 {
@@ -52,25 +53,9 @@ namespace SettingsManagement
         [SerializeField]
         private List<SettingsEntry> items = new List<SettingsEntry>();
 
+        public bool IsDiried { get; private set; }
 
-        struct SettingsKey
-        {
-            public Type type;
-            public string platform;
-            public string variant;
 
-            public SettingsKey(Type type, string platform, string variant)
-            {
-                this.type = type;
-                this.platform = platform;
-                this.variant = variant;
-            }
-
-            public override string ToString()
-            {
-                return $"{platform}.{variant}.{type}";
-            }
-        }
         //struct VariantKey
         //{
         //    public string key;
@@ -152,7 +137,8 @@ namespace SettingsManagement
         {
             Initialize();
             SettingsKey _key = GetKey<T>(platform, variant);
-            return dic.ContainsKey(_key) && dic[_key].ContainsKey(key);
+
+            return dic.TryGetValue(_key, out var dic2) && dic2.ContainsKey(key);
         }
 
         public T Get<T>(string platform, string variant, string key, T fallback = default)
@@ -197,13 +183,18 @@ namespace SettingsManagement
                 dic.Add(_key, entries = new());
             }
 
-            if (entries.ContainsKey(key))
+            if (entries.TryGetValue(key, out var oldValue))
             {
-                entries[key] = value;
+                if (oldValue != value)
+                {
+                    entries[key] = value;
+                    IsDiried = true;
+                }
             }
             else
             {
                 entries.Add(key, value);
+                IsDiried = true;
             }
         }
 
@@ -216,6 +207,7 @@ namespace SettingsManagement
                 return;
 
             entries.Remove(key);
+            IsDiried = true;
         }
 
         [NonSerialized]
@@ -245,6 +237,7 @@ namespace SettingsManagement
             try
             {
                 items = null;
+                IsDiried = false;
 #if UNITY_EDITOR
                 _playingChanged = EditorSettingsProvider.playingChanged;
 #endif
@@ -397,6 +390,7 @@ namespace SettingsManagement
                 lastWriteTime = File.GetLastWriteTimeUtc(filePath);
                 EnableFileSystemWatcher();
             }
+            IsDiried = false;
         }
 
 
@@ -423,9 +417,9 @@ namespace SettingsManagement
 
                         items.Add(new SettingsEntry()
                         {
-                            platform = item.Key.platform,
-                            variant = item.Key.variant,
-                            type = item.Key.type.AssemblyQualifiedName,
+                            platform = item.Key.Platform,
+                            variant = item.Key.Variant,
+                            type = item.Key.Type.AssemblyQualifiedName,
                             key = entry.Key,
                             value = value
                         });

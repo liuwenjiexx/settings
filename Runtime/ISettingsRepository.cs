@@ -14,6 +14,8 @@ namespace SettingsManagement
         /// </summary>
         string Name { get; }
 
+        public bool IsDiried { get; }
+
         /// <summary>
         /// 序列化文件路径
         /// </summary>

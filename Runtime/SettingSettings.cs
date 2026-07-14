@@ -135,7 +135,7 @@ namespace SettingsManagement
         {
             if (!Application.isEditor)
                 throw new InvalidOperationException();
-            userEnvironmentVariables.SetDiry();
+            userEnvironmentVariables.SetDiry(true);
         }
 
 
