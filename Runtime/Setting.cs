@@ -1,9 +1,5 @@
-using Codice.Client.Common;
 using System;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
-using UnityEngine.Profiling;
-using static UnityEditor.UIElements.ToolbarMenu;
 
 namespace SettingsManagement
 {
@@ -327,26 +323,18 @@ namespace SettingsManagement
         {
             Initialize();
 
-            var variants = Settings.GetVariants(variant);
-            string variant2;
-
-            for (int i = 0; i < variants.Length; i++)
+            foreach (var platformVariant in Settings.GetPlatformVariants(platform, variant))
             {
-                variant2 = variants[i];
-
-                foreach (var platform2 in PlatformNames.GetBasePlatforms(platform))
+                if (cachedValues.TryGetValue(platformVariant, out value))
                 {
-                    if (cachedValues.TryGetValue(new(platform2, variant2), out value))
-                    {
-                        return true;
-                    }
+                    return true;
+                }
 
-                    if (settings.ContainsKey<T>(platform2, variant2, key, repositoryName, scope))
-                    {
-                        value = settings.Get<T>(platform2, variant2, key, repositoryName, scope);
-                        cachedValues[new(platform2, variant2)] = value;
-                        return true;
-                    }
+                if (settings.ContainsKey<T>(platformVariant.Platform, platformVariant.Variant, key, repositoryName, scope))
+                {
+                    value = settings.Get<T>(platformVariant.Platform, platformVariant.Variant, key, repositoryName, scope);
+                    cachedValues[platformVariant] = value;
+                    return true;
                 }
             }
 
@@ -609,52 +597,6 @@ namespace SettingsManagement
         //}
     }
 
-    public struct PlatformVariant : IEquatable<PlatformVariant>
-    {
-        public readonly string Platform;
-        public readonly string Variant;
 
-        public PlatformVariant(string platform, string variant)
-        {
-            this.Variant = variant;
-            this.Platform = platform;
-        }
-
-        public bool Equals(PlatformVariant other)
-        {
-            return Platform == other.Platform &&
-                Variant == other.Variant;
-        }
-
-
-        public override bool Equals(object obj)
-        {
-            return obj is PlatformVariant other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            int hash = 0;
-            if (Variant != null)
-                hash = Variant.GetHashCode();
-            if (Platform != null)
-                hash ^= Platform.GetHashCode();
-            return hash;
-        }
-        public override string ToString()
-        {
-            return $"{Variant}-{Platform}";
-        }
-
-        public static bool operator ==(PlatformVariant a, PlatformVariant b)
-        {
-            return a.Equals(b);
-        }
-
-        public static bool operator !=(PlatformVariant a, PlatformVariant b)
-        {
-            return !(a == b);
-        }
-    }
 
 }

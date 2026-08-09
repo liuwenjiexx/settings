@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 namespace SettingsManagement
 {
@@ -58,7 +56,8 @@ namespace SettingsManagement
 
         private static string variant;
         private static List<string> _variants = null;
-        internal static readonly Dictionary<string, string[]> CacheVarintList = new();
+        private static readonly Dictionary<string, string[]> CacheVarintSet = new();
+        private static readonly Dictionary<PlatformVariant, PlatformVariant[]> CachePlatformVarintSet = new();
 
         public static string Variant
         {
@@ -107,7 +106,8 @@ namespace SettingsManagement
 
         internal static void InitilizeVariants(string variant)
         {
-            CacheVarintList.Clear();
+            CacheVarintSet.Clear();
+            CachePlatformVarintSet.Clear();
             _variants = new List<string>();
 
             string baseVariant = variant;
@@ -131,20 +131,46 @@ namespace SettingsManagement
 
         internal static string[] GetVariants(string variant)
         {
-            string[] variants;
+            string[] result;
             string key = variant;
             if (variant == null)
             {
                 key = string.Empty;
             }
-            if (!CacheVarintList.TryGetValue(key, out variants))
+            if (!CacheVarintSet.TryGetValue(key, out result))
             {
-                variants = SettingsUtility.EnumerateVariants(variant).ToArray();
-                CacheVarintList[key] = variants;
+                result = SettingsUtility.EnumerateVariants(variant).ToArray();
+                CacheVarintSet[key] = result;
             }
 
-            return variants;
+            return result;
         }
+
+        internal static PlatformVariant[] GetPlatformVariants(string platform, string variant)
+        {
+            PlatformVariant key = new(platform, variant);
+            PlatformVariant[] result;
+            if (!CachePlatformVarintSet.TryGetValue(key, out result))
+            {
+                var variants = GetVariants(variant);
+                string variant2;
+                List<PlatformVariant> list = new();
+                for (int i = 0; i < variants.Length; i++)
+                {
+                    variant2 = variants[i];
+
+                    foreach (var platform2 in PlatformNames.GetBasePlatforms(platform))
+                    {
+                        list.Add(new(platform2, variant2));
+                    }
+                }
+                result = list.ToArray();
+                CachePlatformVarintSet[key] = result;
+            }
+
+            return result;
+        }
+
 
         public ISettingsRepository GetRepository(SettingsScope scope)
         {
